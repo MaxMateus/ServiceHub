@@ -1,0 +1,46 @@
+services:
+  app:
+    build: .
+    container_name: servicehub-app
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: servicehub
+      DB_USERNAME: servicehub
+      DB_PASSWORD: servicehub
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8.0
+    container_name: servicehub-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: servicehub
+      MYSQL_USER: servicehub
+      MYSQL_PASSWORD: servicehub
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    container_name: servicehub-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql_data:
