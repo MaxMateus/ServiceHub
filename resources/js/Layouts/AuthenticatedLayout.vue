@@ -1,20 +1,38 @@
 <script setup>
 import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import kpmgLogo from '../../images/logokpgm.svg';
 
 const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
-    <div>
-        <div class="min-h-screen bg-gray-100">
+    <div
+        class="relative min-h-screen overflow-x-hidden bg-slate-100 text-slate-900"
+        style="font-family: 'Sora', 'Figtree', ui-sans-serif; --accent: 12 131 164"
+    >
+        <div class="pointer-events-none absolute inset-0">
+            <div
+                class="absolute -left-24 top-[-10rem] h-[26rem] w-[26rem] rounded-full bg-gradient-to-br from-sky-300/60 via-white/60 to-transparent blur-3xl"
+            ></div>
+            <div
+                class="absolute right-[-6rem] top-[14rem] h-[22rem] w-[22rem] rounded-full bg-gradient-to-br from-amber-200/60 via-white/50 to-transparent blur-3xl"
+            ></div>
+            <div
+                class="absolute bottom-[-12rem] left-1/2 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-sky-200/60 via-white/50 to-transparent blur-3xl"
+            ></div>
+            <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(56,189,248,0.14),transparent_45%,rgba(251,191,36,0.1))]"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(2,132,199,0.12),transparent_60%)]"></div>
+            <div class="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.08)_1px,transparent_1px)] bg-[size:30px_30px] opacity-20"></div>
+        </div>
+
+        <div class="relative min-h-screen">
             <nav
-                class="border-b border-gray-100 bg-white"
+                class="relative z-50 border-b border-slate-200/80 bg-white/70 backdrop-blur"
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -23,8 +41,10 @@ const showingNavigationDropdown = ref(false);
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
+                                    <img
+                                        :src="kpmgLogo"
+                                        alt="KPMG"
+                                        class="block h-9 w-auto"
                                     />
                                 </Link>
                             </div>
@@ -45,12 +65,16 @@ const showingNavigationDropdown = ref(false);
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
                             <!-- Settings Dropdown -->
                             <div class="relative ms-3">
-                                <Dropdown align="right" width="48">
+                                <Dropdown
+                                    align="right"
+                                    width="48"
+                                    contentClasses="py-1 bg-white/90 backdrop-blur border border-slate-200/70"
+                                >
                                     <template #trigger>
-                                        <span class="inline-flex rounded-md">
+                                        <span class="inline-flex rounded-2xl">
                                             <button
                                                 type="button"
-                                                class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
+                                                class="inline-flex items-center rounded-2xl border border-slate-200/80 bg-white/70 px-3 py-2 text-sm font-medium leading-4 text-slate-600 transition hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60"
                                             >
                                                 {{ $page.props.auth.user.name }}
 
@@ -95,7 +119,7 @@ const showingNavigationDropdown = ref(false);
                                     showingNavigationDropdown =
                                         !showingNavigationDropdown
                                 "
-                                class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
+                                class="inline-flex items-center justify-center rounded-md p-2 text-slate-500 transition duration-150 ease-in-out hover:bg-white/70 hover:text-slate-900 focus:bg-white/70 focus:text-slate-900 focus:outline-none"
                             >
                                 <svg
                                     class="h-6 w-6"
@@ -150,15 +174,15 @@ const showingNavigationDropdown = ref(false);
 
                     <!-- Responsive Settings Options -->
                     <div
-                        class="border-t border-gray-200 pb-1 pt-4"
+                        class="border-t border-slate-200/80 pb-1 pt-4"
                     >
                         <div class="px-4">
                             <div
-                                class="text-base font-medium text-gray-800"
+                                class="text-base font-medium text-slate-800"
                             >
                                 {{ $page.props.auth.user.name }}
                             </div>
-                            <div class="text-sm font-medium text-gray-500">
+                            <div class="text-sm font-medium text-slate-500">
                                 {{ $page.props.auth.user.email }}
                             </div>
                         </div>
@@ -181,7 +205,7 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Page Heading -->
             <header
-                class="bg-white shadow"
+                class="bg-white/70 shadow-sm backdrop-blur border-b border-slate-200/80"
                 v-if="$slots.header"
             >
                 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -196,3 +220,7 @@ const showingNavigationDropdown = ref(false);
         </div>
     </div>
 </template>
+
+<style>
+@import url('https://fonts.bunny.net/css?family=sora:400,500,600,700&display=swap');
+</style>
