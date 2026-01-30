@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 const props = defineProps({
   stats: {
@@ -72,6 +72,33 @@ const flash = computed(() => page.props.flash || {})
 const companies = computed(() => props.companies || [])
 const projects = computed(() => props.projects || [])
 const users = computed(() => props.users || [])
+const filteredProjects = computed(() =>
+  ticketForm.company_id
+    ? projects.value.filter((project) => project.company_id === ticketForm.company_id)
+    : []
+)
+const toast = reactive({
+  show: false,
+  message: '',
+  detail: '',
+})
+let toastTimer = null
+
+watch(
+  () => flash.value?.success,
+  (success) => {
+    if (success) {
+      const detail =
+        flash.value?.success_detail ||
+        (success.toLowerCase().includes('ticket')
+          ? 'Assim que concluído, você receberá um e-mail com a atualização do ticket.'
+          : '')
+
+      showToast(success, detail)
+    }
+  },
+  { immediate: true }
+)
 
 const isCompanyModalOpen = ref(false)
 const isProjectModalOpen = ref(false)
@@ -109,6 +136,7 @@ function submitCompany() {
   companyForm.post(route('companies.store'), {
     onSuccess: () => {
       closeCompanyModal()
+      showToast('Empresa criada com sucesso.', 'Você já pode vincular projetos a esta empresa.')
     },
   })
 }
@@ -127,6 +155,7 @@ function submitProject() {
   projectForm.post(route('projects.store'), {
     onSuccess: () => {
       closeProjectModal()
+      showToast('Projeto criado com sucesso.', 'Agora você pode adicionar tickets vinculados a este projeto.')
     },
   })
 }
@@ -146,13 +175,36 @@ function onAttachmentChange(event) {
   ticketForm.attachment = file || null
 }
 
+watch(
+  () => ticketForm.company_id,
+  () => {
+    if (!filteredProjects.value.find((p) => p.id === ticketForm.project_id)) {
+      ticketForm.project_id = ''
+    }
+  }
+)
+
 function submitTicket() {
   ticketForm.post(route('tickets.store'), {
     onSuccess: () => {
       closeTicketModal()
+      showToast(
+        'Ticket criado com sucesso.',
+        'Assim que o processamento do anexo e o atendimento forem concluídos, você receberá um e-mail com a atualização.'
+      )
     },
     forceFormData: true,
   })
+}
+
+function showToast(message, detail = '') {
+  toast.message = message
+  toast.detail = detail
+  toast.show = true
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => {
+    toast.show = false
+  }, 10000)
 }
 </script>
 
@@ -164,12 +216,6 @@ function submitTicket() {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white/95 border border-slate-200 rounded-2xl shadow-xl shadow-slate-200/70 backdrop-blur-sm">
           <div class="p-6 lg:p-8 space-y-6">
-            <div
-              v-if="flash.success"
-              class="mb-4 rounded-md bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm text-emerald-800"
-            >
-              {{ flash.success }}
-            </div>
             <!-- HEADER + AÇÕES RÁPIDAS -->
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div class="space-y-1">
@@ -556,25 +602,32 @@ function submitTicket() {
             <label class="block text-sm font-medium text-slate-700">
               Project <span class="text-rose-500">*</span>
             </label>
-            <select
-              v-model="ticketForm.project_id"
-              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
-              :class="{ 'border-rose-500': ticketForm.errors.project_id }"
+          <select
+            v-model="ticketForm.project_id"
+            class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+            :class="{ 'border-rose-500': ticketForm.errors.project_id }"
+            :disabled="!ticketForm.company_id || !filteredProjects.length"
+          >
+            <option value="">Selecione um projeto</option>
+            <option
+              v-for="project in filteredProjects"
+              :key="project.id"
+              :value="project.id"
             >
-              <option value="">Selecione um projeto</option>
-              <option
-                v-for="project in projects"
-                :key="project.id"
-                :value="project.id"
-              >
-                {{ project.name }}
-              </option>
-            </select>
-            <p
-              v-if="ticketForm.errors.project_id"
-              class="mt-1 text-xs text-rose-600"
-            >
-              {{ ticketForm.errors.project_id }}
+              {{ project.name }}
+            </option>
+          </select>
+          <p
+            v-if="ticketForm.company_id && !filteredProjects.length"
+            class="mt-1 text-xs text-slate-500"
+          >
+            Nenhum projeto cadastrado para esta empresa.
+          </p>
+          <p
+            v-if="ticketForm.errors.project_id"
+            class="mt-1 text-xs text-rose-600"
+          >
+            {{ ticketForm.errors.project_id }}
             </p>
           </div>
 
@@ -686,4 +739,49 @@ function submitTicket() {
       </div>
     </div>
   </AuthenticatedLayout>
+
+  <Transition
+    enter-active-class="transform transition duration-200 ease-out"
+    enter-from-class="translate-y-3 opacity-0"
+    enter-to-class="translate-y-0 opacity-100"
+    leave-active-class="transform transition duration-150 ease-in"
+    leave-from-class="translate-y-0 opacity-100"
+    leave-to-class="translate-y-3 opacity-0"
+  >
+    <div
+      v-if="toast.show"
+      class="fixed bottom-8 right-8 z-50 w-full max-w-md rounded-2xl border border-sky-200 bg-white shadow-2xl shadow-sky-200/70"
+    >
+      <div class="flex items-start gap-3 p-4">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-sky-900">
+            {{ toast.message }}
+          </p>
+          <p
+            v-if="toast.detail"
+            class="mt-1 text-xs text-slate-600"
+          >
+            {{ toast.detail }}
+          </p>
+        </div>
+        <button
+          type="button"
+          class="rounded-md p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+          @click="toast.show = false"
+          aria-label="Fechar"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  </Transition>
 </template>

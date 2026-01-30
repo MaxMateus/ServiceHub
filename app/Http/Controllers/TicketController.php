@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\TicketDetail;
 use Illuminate\Http\Request;
 use App\Jobs\ProcessTicketAttachment;
+use Illuminate\Validation\Rule;
 
 
 class TicketController extends Controller
@@ -13,7 +14,11 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'project_id'  => ['required', 'exists:projects,id'],
+            'company_id'  => ['required', 'exists:companies,id'],
+            'project_id'  => [
+                'required',
+                Rule::exists('projects', 'id')->where(fn ($q) => $q->where('company_id', $request->input('company_id'))),
+            ],
             'title'       => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'assigned_to' => ['nullable', 'exists:users,id'],
