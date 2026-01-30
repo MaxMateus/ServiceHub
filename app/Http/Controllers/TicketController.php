@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use App\Models\TicketDetail;
 use Illuminate\Http\Request;
+use App\Jobs\ProcessTicketAttachment;
+
 
 class TicketController extends Controller
 {
@@ -34,13 +36,14 @@ class TicketController extends Controller
             'attachment_path' => $attachmentPath,
         ]);
 
-        // Cria o detalhe técnico vazio: o Job vai preencher "details" e "processed_at"
         TicketDetail::create([
             'ticket_id' => $ticket->id,
         ]);
 
+        ProcessTicketAttachment::dispatch($ticket);
+
         return redirect()
             ->route('dashboard')
-            ->with('success', 'Ticket criado com sucesso.');
+            ->with('success', 'Ticket criado com sucesso. O anexo será processado em segundo plano');
     }
 }
