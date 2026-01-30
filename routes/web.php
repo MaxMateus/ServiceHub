@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TicketController;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -32,9 +33,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // ... sua rota de dashboard já deve estar aqui
 
-    Route::post('/companies', [CompanyController::class, 'store'])
-        ->name('companies.store');
+    Route::post('/companies', [CompanyController::class, 'store'])->name('companies.store');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
 });
 
 require __DIR__.'/auth.php';
