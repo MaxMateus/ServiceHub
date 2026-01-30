@@ -57,20 +57,25 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  projects: {
+    type: Array,
+    default: () => [],
+  },
+  users: {
+    type: Array,
+    default: () => [],
+  },
 })
-
-const statusClasses = {
-  Aberto: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200',
-  'Em andamento': 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200',
-  Fechado: 'bg-slate-200 text-slate-800 ring-1 ring-slate-300',
-}
 
 const page = usePage()
 const flash = computed(() => page.props.flash || {})
 const companies = computed(() => props.companies || [])
+const projects = computed(() => props.projects || [])
+const users = computed(() => props.users || [])
 
 const isCompanyModalOpen = ref(false)
 const isProjectModalOpen = ref(false)
+const isTicketModalOpen = ref(false)
 
 const companyForm = useForm({
   name: '',
@@ -80,6 +85,14 @@ const projectForm = useForm({
   company_id: '',
   name: '',
   description: '',
+})
+const ticketForm = useForm({
+  company_id: '',
+  project_id: '',
+  title: '',
+  description: '',
+  assigned_to: '',
+  attachment: null,
 })
 
 function openCompanyModal() {
@@ -115,6 +128,30 @@ function submitProject() {
     onSuccess: () => {
       closeProjectModal()
     },
+  })
+}
+
+function openTicketModal() {
+  isTicketModalOpen.value = true
+}
+
+function closeTicketModal() {
+  isTicketModalOpen.value = false
+  ticketForm.reset()
+  ticketForm.clearErrors()
+}
+
+function onAttachmentChange(event) {
+  const file = event.target.files?.[0]
+  ticketForm.attachment = file || null
+}
+
+function submitTicket() {
+  ticketForm.post(route('tickets.store'), {
+    onSuccess: () => {
+      closeTicketModal()
+    },
+    forceFormData: true,
   })
 }
 </script>
@@ -163,13 +200,14 @@ function submitProject() {
                   Novo Project
                 </button>
 
-                <Link
-                  href="#"
+                <button
+                  type="button"
                   class="inline-flex items-center gap-2 rounded-md bg-sky-700 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 hover:-translate-y-0.5 hover:shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
+                  @click="openTicketModal"
                 >
                   <span class="text-base leading-none">+</span>
                   Novo Ticket
-                </Link>
+                </button>
               </div>
             </div>
 
@@ -247,7 +285,6 @@ function submitProject() {
                       <th class="px-4 py-3 text-left">Título</th>
                       <th class="px-4 py-3 text-left">Company</th>
                       <th class="px-4 py-3 text-left">Project</th>
-                      <th class="px-4 py-3 text-left">Status</th>
                       <th class="px-4 py-3 text-left">Responsável</th>
                       <th class="px-4 py-3 text-left">Criado em</th>
                       <th class="px-4 py-3 text-right">Ações</th>
@@ -270,14 +307,6 @@ function submitProject() {
                       </td>
                       <td class="px-4 py-3 text-slate-700">
                         {{ ticket.project?.name || '-' }}
-                      </td>
-                      <td class="px-4 py-3">
-                        <span
-                          class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
-                          :class="statusClasses[ticket.status] ?? 'bg-slate-100 text-slate-700 ring-slate-200'"
-                        >
-                          {{ ticket.status }}
-                        </span>
                       </td>
                       <td class="px-4 py-3 text-slate-700">
                         {{ ticket.assigned_to?.name || '-' }}
@@ -306,7 +335,7 @@ function submitProject() {
 
                     <tr v-if="!props.recentTickets.length">
                       <td
-                        colspan="8"
+                        colspan="7"
                         class="px-4 py-8 text-center text-sm text-slate-500"
                       >
                         Nenhum ticket recente.
@@ -485,6 +514,171 @@ function submitProject() {
               :disabled="projectForm.processing"
             >
               <span v-if="projectForm.processing">Salvando...</span>
+              <span v-else>Salvar</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      v-if="isTicketModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 border border-slate-200">
+        <h2 class="text-lg font-semibold text-slate-900 mb-4">
+          Novo Ticket
+        </h2>
+
+        <form @submit.prevent="submitTicket" class="space-y-4">
+          <!-- Company (opcional, só UX) -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Company
+            </label>
+            <select
+              v-model="ticketForm.company_id"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+            >
+              <option value="">Selecione uma empresa (opcional)</option>
+              <option
+                v-for="company in companies"
+                :key="company.id"
+                :value="company.id"
+              >
+                {{ company.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Project -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Project <span class="text-rose-500">*</span>
+            </label>
+            <select
+              v-model="ticketForm.project_id"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': ticketForm.errors.project_id }"
+            >
+              <option value="">Selecione um projeto</option>
+              <option
+                v-for="project in projects"
+                :key="project.id"
+                :value="project.id"
+              >
+                {{ project.name }}
+              </option>
+            </select>
+            <p
+              v-if="ticketForm.errors.project_id"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ ticketForm.errors.project_id }}
+            </p>
+          </div>
+
+          <!-- Título -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Título <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="ticketForm.title"
+              type="text"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': ticketForm.errors.title }"
+            >
+            <p
+              v-if="ticketForm.errors.title"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ ticketForm.errors.title }}
+            </p>
+          </div>
+
+          <!-- Descrição -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Descrição do problema <span class="text-rose-500">*</span>
+            </label>
+            <textarea
+              v-model="ticketForm.description"
+              rows="4"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': ticketForm.errors.description }"
+            />
+            <p
+              v-if="ticketForm.errors.description"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ ticketForm.errors.description }}
+            </p>
+          </div>
+
+          <!-- Responsável -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Responsável
+            </label>
+            <select
+              v-model="ticketForm.assigned_to"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': ticketForm.errors.assigned_to }"
+            >
+              <option value="">Não atribuído</option>
+              <option
+                v-for="user in users"
+                :key="user.id"
+                :value="user.id"
+              >
+                {{ user.name }}
+              </option>
+            </select>
+            <p
+              v-if="ticketForm.errors.assigned_to"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ ticketForm.errors.assigned_to }}
+            </p>
+          </div>
+
+          <!-- Anexo -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Anexo (JSON ou TXT)
+            </label>
+            <input
+              type="file"
+              accept=".json,.txt"
+              class="mt-1 block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border file:border-slate-200 file:bg-slate-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-100"
+              @change="onAttachmentChange"
+            >
+            <p
+              v-if="ticketForm.errors.attachment"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ ticketForm.errors.attachment }}
+            </p>
+          </div>
+
+          <!-- Botões -->
+          <div class="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              @click="closeTicketModal"
+              :disabled="ticketForm.processing"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="inline-flex items-center rounded-md bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 disabled:opacity-60"
+              :disabled="ticketForm.processing"
+            >
+              <span v-if="ticketForm.processing">Salvando...</span>
               <span v-else>Salvar</span>
             </button>
           </div>
