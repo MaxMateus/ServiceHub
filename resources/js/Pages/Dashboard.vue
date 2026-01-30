@@ -53,6 +53,10 @@ const props = defineProps({
       },
     ],
   },
+  companies: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const statusClasses = {
@@ -63,12 +67,19 @@ const statusClasses = {
 
 const page = usePage()
 const flash = computed(() => page.props.flash || {})
+const companies = computed(() => props.companies || [])
 
 const isCompanyModalOpen = ref(false)
+const isProjectModalOpen = ref(false)
 
 const companyForm = useForm({
   name: '',
   cnpj: '',
+})
+const projectForm = useForm({
+  company_id: '',
+  name: '',
+  description: '',
 })
 
 function openCompanyModal() {
@@ -85,6 +96,24 @@ function submitCompany() {
   companyForm.post(route('companies.store'), {
     onSuccess: () => {
       closeCompanyModal()
+    },
+  })
+}
+
+function openProjectModal() {
+  isProjectModalOpen.value = true
+}
+
+function closeProjectModal() {
+  isProjectModalOpen.value = false
+  projectForm.reset()
+  projectForm.clearErrors()
+}
+
+function submitProject() {
+  projectForm.post(route('projects.store'), {
+    onSuccess: () => {
+      closeProjectModal()
     },
   })
 }
@@ -125,13 +154,14 @@ function submitCompany() {
                   Nova Company
                 </button>
 
-                <Link
-                  href="#"
+                <button
+                  type="button"
                   class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition"
+                  @click="openProjectModal"
                 >
                   <span class="text-base leading-none">+</span>
                   Novo Project
-                </Link>
+                </button>
 
                 <Link
                   href="#"
@@ -356,6 +386,105 @@ function submitCompany() {
               :disabled="companyForm.processing"
             >
               <span v-if="companyForm.processing">Salvando...</span>
+              <span v-else>Salvar</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      v-if="isProjectModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+        <h2 class="text-lg font-semibold text-slate-900 mb-4">
+          Novo Project
+        </h2>
+
+        <form @submit.prevent="submitProject" class="space-y-4">
+          <!-- Company -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Company <span class="text-rose-500">*</span>
+            </label>
+            <select
+              v-model="projectForm.company_id"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': projectForm.errors.company_id }"
+            >
+              <option value="">Selecione uma empresa</option>
+              <option
+                v-for="company in companies"
+                :key="company.id"
+                :value="company.id"
+              >
+                {{ company.name }}
+              </option>
+            </select>
+            <p
+              v-if="projectForm.errors.company_id"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ projectForm.errors.company_id }}
+            </p>
+          </div>
+
+          <!-- Nome -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Nome do Project <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="projectForm.name"
+              type="text"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': projectForm.errors.name }"
+            >
+            <p
+              v-if="projectForm.errors.name"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ projectForm.errors.name }}
+            </p>
+          </div>
+
+          <!-- Descrição -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Descrição
+            </label>
+            <textarea
+              v-model="projectForm.description"
+              rows="3"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': projectForm.errors.description }"
+            />
+            <p
+              v-if="projectForm.errors.description"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ projectForm.errors.description }}
+            </p>
+          </div>
+
+          <!-- Botões -->
+          <div class="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              @click="closeProjectModal"
+              :disabled="projectForm.processing"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="inline-flex items-center rounded-md bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 disabled:opacity-60"
+              :disabled="projectForm.processing"
+            >
+              <span v-if="projectForm.processing">Salvando...</span>
               <span v-else>Salvar</span>
             </button>
           </div>

@@ -19,6 +19,7 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard', [
             'stats'         => $stats,
             'recentTickets' => [],
+            'companies'     => Company::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 }
