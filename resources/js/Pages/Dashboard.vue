@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   stats: {
@@ -59,6 +60,34 @@ const statusClasses = {
   'Em andamento': 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200',
   Fechado: 'bg-slate-200 text-slate-800 ring-1 ring-slate-300',
 }
+
+const page = usePage()
+const flash = computed(() => page.props.flash || {})
+
+const isCompanyModalOpen = ref(false)
+
+const companyForm = useForm({
+  name: '',
+  cnpj: '',
+})
+
+function openCompanyModal() {
+  isCompanyModalOpen.value = true
+}
+
+function closeCompanyModal() {
+  isCompanyModalOpen.value = false
+  companyForm.reset()
+  companyForm.clearErrors()
+}
+
+function submitCompany() {
+  companyForm.post(route('companies.store'), {
+    onSuccess: () => {
+      closeCompanyModal()
+    },
+  })
+}
 </script>
 
 <template>
@@ -69,6 +98,12 @@ const statusClasses = {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white/95 border border-slate-200 rounded-2xl shadow-xl shadow-slate-200/70 backdrop-blur-sm">
           <div class="p-6 lg:p-8 space-y-6">
+            <div
+              v-if="flash.success"
+              class="mb-4 rounded-md bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm text-emerald-800"
+            >
+              {{ flash.success }}
+            </div>
             <!-- HEADER + AÇÕES RÁPIDAS -->
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div class="space-y-1">
@@ -81,13 +116,14 @@ const statusClasses = {
               </div>
 
               <div class="flex flex-wrap gap-2">
-                <Link
-                  href="#"
+                <button
+                  type="button"
                   class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  @click="openCompanyModal"
                 >
                   <span class="text-base leading-none">+</span>
                   Nova Company
-                </Link>
+                </button>
 
                 <Link
                   href="#"
@@ -252,6 +288,78 @@ const statusClasses = {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div
+      v-if="isCompanyModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+        <h2 class="text-lg font-semibold text-slate-900 mb-4">
+          Nova Company
+        </h2>
+
+        <form @submit.prevent="submitCompany" class="space-y-4">
+          <!-- Campo Nome -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              Nome <span class="text-rose-500">*</span>
+            </label>
+            <input
+              v-model="companyForm.name"
+              type="text"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': companyForm.errors.name }"
+            >
+            <p
+              v-if="companyForm.errors.name"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ companyForm.errors.name }}
+            </p>
+          </div>
+
+          <!-- Campo CNPJ -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700">
+              CNPJ
+            </label>
+            <input
+              v-model="companyForm.cnpj"
+              type="text"
+              class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-600 focus:ring-sky-600 text-sm"
+              :class="{ 'border-rose-500': companyForm.errors.cnpj }"
+            >
+            <p
+              v-if="companyForm.errors.cnpj"
+              class="mt-1 text-xs text-rose-600"
+            >
+              {{ companyForm.errors.cnpj }}
+            </p>
+          </div>
+
+          <!-- Botões -->
+          <div class="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+              @click="closeCompanyModal"
+              :disabled="companyForm.processing"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="inline-flex items-center rounded-md bg-sky-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 disabled:opacity-60"
+              :disabled="companyForm.processing"
+            >
+              <span v-if="companyForm.processing">Salvando...</span>
+              <span v-else>Salvar</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </AuthenticatedLayout>
