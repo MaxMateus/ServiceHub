@@ -35,7 +35,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/companies', [CompanyController::class, 'store'])->name('companies.store');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
+    Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
 });
 
 require __DIR__.'/auth.php';

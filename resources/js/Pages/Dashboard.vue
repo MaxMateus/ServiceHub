@@ -363,18 +363,11 @@ function showToast(message, detail = '') {
                       <td class="px-4 py-3">
                         <div class="flex justify-end gap-2">
                           <Link
-                            href="#"
+                            :href="route('tickets.show', ticket.id)"
                             class="inline-flex items-center rounded-md bg-sky-700 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-sky-800"
                           >
                             Ver
                           </Link>
-                          <button
-                            type="button"
-                            class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-2.5 py-1 text-slate-600 shadow-sm hover:bg-slate-50"
-                            aria-label="Mais ações"
-                          >
-                            ⋮
-                          </button>
                         </div>
                       </td>
                     </tr>
@@ -738,6 +731,7 @@ function showToast(message, detail = '') {
         </form>
       </div>
     </div>
+
   </AuthenticatedLayout>
 
   <Transition
