@@ -190,7 +190,7 @@ function submitTicket() {
       closeTicketModal()
       showToast(
         'Ticket criado com sucesso.',
-        'Assim que o processamento do anexo e o atendimento forem concluídos, você receberá um e-mail com a atualização.'
+        'Assim que o processamento do anexo for concluídos, você receberá um e-mail com a atualização.'
       )
     },
     forceFormData: true,
