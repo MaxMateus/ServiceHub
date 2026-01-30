@@ -15,6 +15,10 @@ class TicketDetail extends Model
         'processed_at',
     ];
 
+    protected $casts = [
+        'processed_at' => 'datetime',
+    ];
+
     public function ticket()
     {
         return $this->belongsTo(Ticket::class);
