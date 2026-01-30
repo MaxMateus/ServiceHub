@@ -3,22 +3,21 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 
-defineProps({
-    mustVerifyEmail: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
+const props = defineProps({
+    mustVerifyEmail: Boolean,
+    status: String,
+    user: Object,
 });
 
-const user = usePage().props.auth.user;
-
 const form = useForm({
-    name: user.name,
-    email: user.email,
+    name: props.user.name,
+    email: props.user.email,
+    phone: props.user.profile?.phone ?? '',
+    job_title: props.user.profile?.job_title ?? '',
+    employee_id: props.user.profile?.employee_id ?? '',
+    department: props.user.profile?.department ?? '',
 });
 </script>
 
@@ -69,7 +68,37 @@ const form = useForm({
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div v-if="mustVerifyEmail && user.email_verified_at === null">
+            <div class="grid grid-cols-6 gap-6">
+                <!-- Telefone -->
+                <div class="col-span-6 sm:col-span-3">
+                    <InputLabel for="phone" value="Telefone" />
+                    <TextInput id="phone" v-model="form.phone" class="mt-1 block w-full" />
+                    <InputError class="mt-2" :message="form.errors.phone" />
+                </div>
+
+                <!-- Cargo -->
+                <div class="col-span-6 sm:col-span-3">
+                    <InputLabel for="job_title" value="Cargo" />
+                    <TextInput id="job_title" v-model="form.job_title" class="mt-1 block w-full" />
+                    <InputError class="mt-2" :message="form.errors.job_title" />
+                </div>
+
+                <!-- Matrícula -->
+                <div class="col-span-6 sm:col-span-3">
+                    <InputLabel for="employee_id" value="Matrícula" />
+                    <TextInput id="employee_id" v-model="form.employee_id" class="mt-1 block w-full" />
+                    <InputError class="mt-2" :message="form.errors.employee_id" />
+                </div>
+
+                <!-- Departamento -->
+                <div class="col-span-6 sm:col-span-3">
+                    <InputLabel for="department" value="Departamento" />
+                    <TextInput id="department" v-model="form.department" class="mt-1 block w-full" />
+                    <InputError class="mt-2" :message="form.errors.department" />
+                </div>
+            </div>
+
+            <div v-if="mustVerifyEmail && props.user.email_verified_at === null">
                 <p class="mt-2 text-sm text-gray-800">
                     Your email address is unverified.
                     <Link

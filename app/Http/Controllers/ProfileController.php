@@ -18,10 +18,13 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
-        ]);
+    $user = $request->user()->load('profile');
+
+    return Inertia::render('Profile/Edit', [
+        'mustVerifyEmail' => $user instanceof MustVerifyEmail,
+        'status'          => session('status'),
+        'user'            => $user,
+    ]);
     }
 
     /**
@@ -29,15 +32,31 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Dados padrão do usuário
+        $user->fill($request->validated());
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
-        return Redirect::route('profile.edit');
+        // Dados adicionais do perfil
+        $profileData = $request->validate([
+            'phone'        => ['nullable', 'string', 'max:20'],
+            'job_title'    => ['nullable', 'string', 'max:100'],
+            'employee_id'  => ['nullable', 'string', 'max:50'],
+            'department'   => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            $profileData
+        );
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
