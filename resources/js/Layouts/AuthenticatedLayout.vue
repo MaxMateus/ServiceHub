@@ -15,24 +15,10 @@ const showingNavigationDropdown = ref(false);
         class="relative min-h-screen overflow-x-hidden bg-slate-100 text-slate-900"
         style="font-family: 'Sora', 'Figtree', ui-sans-serif; --accent: 12 131 164"
     >
-        <div class="pointer-events-none absolute inset-0">
-            <div
-                class="absolute -left-24 top-[-10rem] h-[26rem] w-[26rem] rounded-full bg-gradient-to-br from-sky-300/60 via-white/60 to-transparent blur-3xl"
-            ></div>
-            <div
-                class="absolute right-[-6rem] top-[14rem] h-[22rem] w-[22rem] rounded-full bg-gradient-to-br from-amber-200/60 via-white/50 to-transparent blur-3xl"
-            ></div>
-            <div
-                class="absolute bottom-[-12rem] left-1/2 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-sky-200/60 via-white/50 to-transparent blur-3xl"
-            ></div>
-            <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(56,189,248,0.14),transparent_45%,rgba(251,191,36,0.1))]"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(2,132,199,0.12),transparent_60%)]"></div>
-            <div class="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.08)_1px,transparent_1px)] bg-[size:30px_30px] opacity-20"></div>
-        </div>
 
         <div class="relative min-h-screen">
             <nav
-                class="relative z-50 border-b border-slate-200/80 bg-white/70 backdrop-blur"
+                class="relative z-50 border-b border-sky-900/30 bg-gradient-to-r from-sky-900 to-sky-700 text-white shadow-md"
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -119,7 +105,7 @@ const showingNavigationDropdown = ref(false);
                                     showingNavigationDropdown =
                                         !showingNavigationDropdown
                                 "
-                                class="inline-flex items-center justify-center rounded-md p-2 text-slate-500 transition duration-150 ease-in-out hover:bg-white/70 hover:text-slate-900 focus:bg-white/70 focus:text-slate-900 focus:outline-none"
+                                class="inline-flex items-center justify-center rounded-md p-2 text-white/80 transition duration-150 ease-in-out hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white focus:outline-none"
                             >
                                 <svg
                                     class="h-6 w-6"
@@ -157,11 +143,8 @@ const showingNavigationDropdown = ref(false);
 
                 <!-- Responsive Navigation Menu -->
                 <div
-                    :class="{
-                        block: showingNavigationDropdown,
-                        hidden: !showingNavigationDropdown,
-                    }"
-                    class="sm:hidden"
+                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
+                    class="sm:hidden bg-sky-800/95 text-white border-t border-sky-700/60"
                 >
                     <div class="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink
@@ -174,15 +157,15 @@ const showingNavigationDropdown = ref(false);
 
                     <!-- Responsive Settings Options -->
                     <div
-                        class="border-t border-slate-200/80 pb-1 pt-4"
+                        class="border-t border-white/15 pb-1 pt-4"
                     >
                         <div class="px-4">
                             <div
-                                class="text-base font-medium text-slate-800"
+                                class="text-base font-medium text-white"
                             >
                                 {{ $page.props.auth.user.name }}
                             </div>
-                            <div class="text-sm font-medium text-slate-500">
+                            <div class="text-sm font-medium text-white/80">
                                 {{ $page.props.auth.user.email }}
                             </div>
                         </div>
