@@ -8,16 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('companies', function (Blueprint $table) {
+        Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->string('name');              // nome da empresa
-            $table->string('cnpj', 20)->nullable(); // opcional
+            $table->foreignId('company_id')
+                ->constrained('companies')
+                ->cascadeOnDelete();
+            $table->string('name');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('companies');
+        Schema::dropIfExists('projects');
     }
 };

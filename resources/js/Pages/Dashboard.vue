@@ -118,7 +118,7 @@ function submitCompany() {
               <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition"
                   @click="openCompanyModal"
                 >
                   <span class="text-base leading-none">+</span>
@@ -127,7 +127,7 @@ function submitCompany() {
 
                 <Link
                   href="#"
-                  class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                  class="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-md transition"
                 >
                   <span class="text-base leading-none">+</span>
                   Novo Project
@@ -135,7 +135,7 @@ function submitCompany() {
 
                 <Link
                   href="#"
-                  class="inline-flex items-center gap-2 rounded-md bg-sky-700 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
+                  class="inline-flex items-center gap-2 rounded-md bg-sky-700 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-800 hover:-translate-y-0.5 hover:shadow-lg transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
                 >
                   <span class="text-base leading-none">+</span>
                   Novo Ticket

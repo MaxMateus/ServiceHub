@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Project;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -11,7 +12,7 @@ class DashboardController extends Controller
     {
         $stats = [
             'companiesCount' => Company::count(),
-            'projectsCount'  => 0,
+            'projectsCount'  => Project::count(),
             'ticketsCount'   => 0, 
         ];
 

@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/companies', [CompanyController::class, 'store'])
         ->name('companies.store');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
 });
 
 require __DIR__.'/auth.php';
